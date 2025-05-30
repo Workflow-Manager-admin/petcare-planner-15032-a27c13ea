@@ -18,31 +18,49 @@ function TaskList({ tasks = [], onToggleStatus }) {
             key={task.id}
             style={{
               marginBottom: 12,
-              borderRadius: 6,
-              background: task.status === "done"
-                ? "#263522"
-                : task.status === "missed"
-                ? "#452200"
-                : "#242730",
-              color: task.status === "missed"
-                ? "#FF9800"
-                : "var(--text-color)",
-              padding: "10px 12px",
-              opacity: task.status === "done" ? 0.7 : 1,
+              borderRadius: 8,
+              background:
+                task.status === "done"
+                  ? "rgba(76,175,80,0.18)"
+                  : task.status === "missed"
+                  ? "rgba(255,152,0,0.15)"
+                  : "var(--background-card)",
+              border:
+                task.status === "missed"
+                  ? "1px solid var(--accent)"
+                  : task.status === "done"
+                  ? "1px solid var(--primary)"
+                  : "1px solid var(--border-color)",
+              color:
+                task.status === "missed"
+                  ? "var(--accent)"
+                  : task.status === "done"
+                  ? "var(--primary)"
+                  : "var(--text-color)",
+              padding: "10px 14px",
+              opacity: task.status === "done" ? 0.65 : 1,
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between"
             }}
           >
-            <span>{task.description} <span style={{ color: "#888", fontSize: "0.93em" }}>({task.time})</span></span>
+            <span>
+              {task.description}{" "}
+              <span style={{ color: "var(--text-secondary)", fontSize: "0.93em" }}>
+                ({task.time})
+              </span>
+            </span>
             <button
               className="btn"
               style={{
-                background: task.status === "done"
-                  ? "var(--kavia-orange)"
-                  : "var(--kavia-dark)",
+                background:
+                  task.status === "done"
+                    ? "var(--background-mid)"
+                    : "var(--primary)",
+                color: task.status === "done" ? "var(--text-secondary)" : "#fff",
                 fontSize: 12,
-                padding: "4px 10px"
+                padding: "4px 10px",
+                minWidth: 88
               }}
               onClick={() => onToggleStatus && onToggleStatus(task.id)}
             >
