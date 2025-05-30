@@ -97,11 +97,9 @@ function MainContainer() {
 
         <main style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh", background: "#16191f" }}>
           <Dashboard
-            tasks={filteredTasks}
-            events={filteredEvents}
             reminders={reminders}
-            onToggleStatus={onToggleTaskStatus}
             onDismissReminder={onDismissReminder}
+            showHealthLog={true}
           />
           {/* Slots for future extensibility/features */}
           <section style={{ display: 'none' }}>
