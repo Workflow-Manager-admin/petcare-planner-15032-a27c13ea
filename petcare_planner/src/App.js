@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import './App.css';
 import SidebarTabs from './components/SidebarTabs';
 import Dashboard from './components/Dashboard';
@@ -7,11 +7,11 @@ import TaskList from './components/TaskList';
 import HealthLog from './components/HealthLog';
 import Reminder from './components/Reminder';
 
-// CONSUME CONTEXTS
+// Import Context Providers/hooks (all centralized state logic)
 import { PetProvider, usePets } from './contexts/PetContext';
 import { TaskProvider, useTasks } from './contexts/TaskContext';
-// For extensibility: HealthLog and Reminders/Notifications providers will be created below.
-import ReactContext from 'react';
+import { HealthLogProvider, useHealthLogs } from './contexts/HealthLogContext';
+import { ReminderProvider, useReminders } from './contexts/ReminderContext';
 
 const theme = {
   primary: '#4CAF50',
@@ -19,95 +19,6 @@ const theme = {
   accent: '#FF9800',
   mode: 'dark'
 };
-
-// Create HealthLog Context
-const HealthLogContext = ReactContext.createContext();
-export const useHealthLogs = () => ReactContext.useContext(HealthLogContext);
-// Create Notification/Reminder Context
-const ReminderContext = ReactContext.createContext();
-export const useReminders = () => ReactContext.useContext(ReminderContext);
-
-/**
- * HealthLogProvider holds CRUD + localStorage sync for per-pet health timeline events.
- */
-function HealthLogProvider({ children }) {
-  const [logs, setLogs] = useState(() => {
-    try {
-      const stored = window.localStorage.getItem("healthEvents");
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  React.useEffect(() => {
-    window.localStorage.setItem("healthEvents", JSON.stringify(logs));
-  }, [logs]);
-
-  // PUBLIC_INTERFACE
-  const addHealthEvent = (event) => setLogs((old) => [...old, event]);
-  // PUBLIC_INTERFACE
-  const updateHealthEvent = (id, updated) =>
-    setLogs((old) => old.map((ev) => (ev.id === id ? { ...ev, ...updated } : ev)));
-  // PUBLIC_INTERFACE
-  const deleteHealthEvent = (id) =>
-    setLogs((old) => old.filter((ev) => ev.id !== id));
-
-  return (
-    <HealthLogContext.Provider
-      value={{
-        healthEvents: logs,
-        addHealthEvent,
-        updateHealthEvent,
-        deleteHealthEvent,
-      }}>
-      {children}
-    </HealthLogContext.Provider>
-  );
-}
-
-/**
- * ReminderProvider manages local reminder/notification queue and sync.
- */
-function ReminderProvider({ children }) {
-  const [reminders, setReminders] = useState(() => {
-    try {
-      const stored = window.localStorage.getItem("reminders");
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  React.useEffect(() => {
-    window.localStorage.setItem("reminders", JSON.stringify(reminders));
-  }, [reminders]);
-
-  // PUBLIC_INTERFACE
-  const addReminder = (rem) => setReminders((old) => [...old, rem]);
-  // PUBLIC_INTERFACE
-  const updateReminder = (id, updated) =>
-    setReminders((old) => old.map((r) => (r.id === id ? { ...r, ...updated } : r)));
-  // PUBLIC_INTERFACE
-  const dismissReminder = (id) =>
-    setReminders((old) => old.map((r) => (r.id === id ? { ...r, dismissed: true } : r)));
-  // PUBLIC_INTERFACE
-  const deleteReminder = (id) =>
-    setReminders((old) => old.filter((r) => r.id !== id));
-
-  return (
-    <ReminderContext.Provider
-      value={{
-        reminders,
-        addReminder,
-        updateReminder,
-        dismissReminder,
-        deleteReminder,
-      }}>
-      {children}
-    </ReminderContext.Provider>
-  );
-}
 
 // MAIN APP LAYER
 function MainContainer() {
@@ -121,10 +32,10 @@ function MainContainer() {
   const { reminders, addReminder, updateReminder, dismissReminder, deleteReminder } = useReminders();
 
   // App-level active (selected) pet, defaults to first if available
-  const [activePetId, setActivePetId] = React.useState(() => pets[0]?.id || "");
+  const [activePetId, setActivePetId] = useState(() => pets[0]?.id || "");
 
   // Whenever pets changes: if no activePetId or the pet gets deleted, fallback
-  React.useEffect(() => {
+  useEffect(() => {
     if (!pets.find((p) => p.id === activePetId)) {
       setActivePetId(pets.length > 0 ? pets[0].id : "");
     }
