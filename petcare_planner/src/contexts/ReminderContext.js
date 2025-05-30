@@ -36,6 +36,33 @@ export function ReminderProvider({ children }) {
   // PUBLIC_INTERFACE
   const deleteReminder = (id) =>
     setReminders((old) => old.filter((r) => r.id !== id));
+  // PUBLIC_INTERFACE
+  const snoozeReminder = (id, snoozeMinutes = 15) =>
+    setReminders((old) =>
+      old.map((r) =>
+        r.id === id
+          ? {
+              ...r,
+              snoozed: true,
+              // For demo: add snooze offset to datetime as ISO string, but keep original as .origDatetime
+              origDatetime: r.datetime || "",
+              datetime: (() => {
+                try {
+                  // If r.datetime exists and is valid, add snoozeMinutes;
+                  const dt = r.datetime
+                    ? new Date(r.datetime)
+                    : new Date();
+                  dt.setMinutes(dt.getMinutes() + snoozeMinutes);
+                  return dt.toISOString().slice(0,16).replace("T", " ");
+                } catch {
+                  return r.datetime;
+                }
+              })(),
+              dismissed: false, // Snoozed reminders pop to top again!
+            }
+          : r
+      )
+    );
 
   return (
     <ReminderContext.Provider
