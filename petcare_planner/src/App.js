@@ -60,24 +60,17 @@ function MainContainer() {
     });
   };
   const onDismissReminder = (reminderId) => dismissReminder(reminderId);
-  const onSnoozeReminder = (reminderId, mins = 10) => {
+  // Handler for snoozing reminders, using the context directly (legal hook usage)
+  const handleSnoozeReminder = (reminderId, mins = 10) => {
     if (typeof mins !== "number") mins = 10;
     if (window.confirm(`Snooze this reminder for ${mins} minutes?`)) {
-      // snoozeReminder is published from ReminderContext
-      if (typeof window.snoozeReminder === "function") {
-        window.snoozeReminder(reminderId, mins); // fallback global, mostly for debug
-      } else {
-        // use context
-        const ctx = useReminders();
-        ctx?.snoozeReminder?.(reminderId, mins);
-      }
+      snoozeReminder(reminderId, mins);
     }
   };
-  // Needed for state consistency
-  const handleSnoozeReminder = (reminderId, mins = 10) =>
-    snoozeReminder(reminderId, mins);
+
   const handleRemindersClose = () => setRemindersOpen(false);
   const handleRemindersOpen = () => setRemindersOpen(true);
+
   const handleReminderDone = (reminderId) => {
     updateReminder(reminderId, { dismissed: false, completed: true });
     dismissReminder(reminderId);
