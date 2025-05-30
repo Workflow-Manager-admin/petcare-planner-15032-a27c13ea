@@ -17,21 +17,28 @@ function HealthLog({ events = [] }) {
           <li
             key={event.id}
             style={{
-              marginBottom: 12,
-              borderRadius: 6,
-              background: "#1f232a",
+              marginBottom: 13,
+              borderRadius: 7,
+              background: "var(--background-card)",
               color: "var(--text-color)",
-              padding: "10px 12px"
+              border: "1px solid var(--border-color)",
+              boxShadow: "0 1.5px 6px 0 rgba(0,0,0,0.12)",
+              padding: "10px 13px"
             }}
           >
-            <div style={{ fontWeight: "bold" }}>{event.eventType} <span style={{ fontWeight: "normal", color: "#888" }}>{event.date}</span></div>
-            {event.notes && <div style={{ fontSize: "0.98em", marginTop: 4 }}>{event.notes}</div>}
+            <div style={{ fontWeight: "bold" }}>
+              {event.eventType}
+              <span style={{ fontWeight: "normal", color: "var(--accent)", marginLeft: 8 }}>
+                {event.date}
+              </span>
+            </div>
+            {event.notes && <div style={{ fontSize: "0.98em", marginTop: 3 }}>{event.notes}</div>}
             {event.attachmentUrl && (
               <a
                 href={event.attachmentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: "#FF9800", textDecoration: "underline", fontSize: "0.95em" }}
+                style={{ color: "var(--accent)", textDecoration: "underline", fontSize: "0.96em", fontWeight: 500 }}
               >
                 View Attachment
               </a>
