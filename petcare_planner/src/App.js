@@ -6,6 +6,8 @@ import PetProfile from './components/PetProfile';
 import TaskList from './components/TaskList';
 import HealthLogPanel from './components/HealthLogPanel';
 import Reminder from './components/Reminder';
+import RemindersPanel from './components/RemindersPanel';
+import RemindersPanel from './components/RemindersPanel';
 
 // Import Context Providers/hooks (all centralized state logic)
 import { PetProvider, usePets } from './contexts/PetContext';
@@ -59,6 +61,31 @@ function MainContainer() {
     });
   };
   const onDismissReminder = (reminderId) => dismissReminder(reminderId);
+  const onSnoozeReminder = (reminderId, mins = 10) => {
+    if (typeof mins !== "number") mins = 10;
+    if (window.confirm(`Snooze this reminder for ${mins} minutes?`)) {
+      // snoozeReminder is published from ReminderContext
+      if (typeof window.snoozeReminder === "function") {
+        window.snoozeReminder(reminderId, mins); // fallback global, mostly for debug
+      } else {
+        // use context
+        const ctx = useReminders();
+        ctx?.snoozeReminder?.(reminderId, mins);
+      }
+    }
+  };
+  // Needed for state consistency
+  const handleSnoozeReminder = (reminderId, mins = 10) =>
+    snoozeReminder(reminderId, mins);
+  const handleRemindersClose = () => setRemindersOpen(false);
+  const handleRemindersOpen = () => setRemindersOpen(true);
+  const handleReminderDone = (reminderId) => {
+    updateReminder(reminderId, { dismissed: false, completed: true });
+    dismissReminder(reminderId);
+  };
+  const handleReminderDelete = (reminderId) => {
+    deleteReminder(reminderId);
+  };
 
   // Filter view for active pet
   const filteredTasks = useMemo(
@@ -72,6 +99,18 @@ function MainContainer() {
 
   return (
     <div className="app" style={{ minHeight: '100vh', background: 'var(--kavia-dark)', color: 'var(--text-color)' }}>
+      {/* Global Reminders Modal */}
+      {remindersOpen && (
+        <RemindersPanel
+          reminders={reminders}
+          onDismiss={onDismissReminder}
+          onSnooze={handleSnoozeReminder}
+          onMarkDone={handleReminderDone}
+          onDelete={handleReminderDelete}
+          onClose={handleRemindersClose}
+          asModal
+        />
+      )}
       <nav className="navbar" style={{ background: '#111115', borderBottom: '1px solid var(--border-color)' }}>
         <div className="container" style={{ maxWidth: 1100 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
@@ -79,7 +118,20 @@ function MainContainer() {
               <span className="logo-symbol" style={{ color: theme.primary }}>*</span> PetCare Planner
             </div>
             <div>
-              {/* Placeholder for future settings/profile */}
+              {/* Global Reminders quick badge in navbar */}
+              <button
+                className="btn btn-small"
+                aria-label={`Show reminders & notifications (${reminders.filter((r) => !r.dismissed).length} pending)`}
+                style={{ background: "var(--background-mid)", color: "var(--accent)", border: "1.5px solid var(--accent)", fontWeight: 700, marginRight: 7, position: "relative" }}
+                onClick={handleRemindersOpen}
+              >
+                <span role="img" aria-label="Reminders">🔔</span>
+                {reminders.filter((r) => !r.dismissed).length > 0 && (
+                  <span className="reminder-badge" tabIndex={-1} aria-label={`${reminders.filter((r) => !r.dismissed).length} pending reminders`}>
+                    {reminders.filter((r) => !r.dismissed).length}
+                  </span>
+                )}
+              </button>
               <button className="btn" style={{ background: theme.primary, color: theme.secondary }}>
                 Settings
               </button>
@@ -93,6 +145,8 @@ function MainContainer() {
           activePetId={activePetId}
           onSelect={handleSelectPet}
           onAdd={handleAddPet}
+          reminders={reminders}
+          onOpenReminders={handleRemindersOpen}
         />
 
         <main style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh", background: "#16191f" }}>
