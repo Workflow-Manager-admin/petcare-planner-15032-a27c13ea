@@ -7,6 +7,7 @@ import TaskList from './components/TaskList';
 import HealthLogPanel from './components/HealthLogPanel';
 import Reminder from './components/Reminder';
 import RemindersPanel from './components/RemindersPanel';
+import AddPetForm from './components/AddPetForm';
 
 // Import Context Providers/hooks (all centralized state logic)
 import { PetProvider, usePets } from './contexts/PetContext';
@@ -48,11 +49,24 @@ function MainContainer() {
   // Selection handler for pet tab
   const handleSelectPet = (petId) => setActivePetId(petId);
 
-  // Handler for "Add Pet" – actual modal/form is to be implemented elsewhere
+  // Add Pet modal state
+  const [addPetModalOpen, setAddPetModalOpen] = useState(false);
+
+  // Handler for "Add Pet"
   const handleAddPet = () => {
-    // Placeholder: in production, show a modal, etc.
-    alert("Open Add Pet form (to be implemented)");
+    setAddPetModalOpen(true);
   };
+
+  // Handler called when user submits new pet
+  const handleAddPetSubmit = (petObj) => {
+    addPet(petObj);
+    setAddPetModalOpen(false);
+    // Optionally, select this pet as active after creation
+    setActivePetId(petObj.id);
+  };
+
+  // Cancel/close add pet
+  const handleAddPetCancel = () => setAddPetModalOpen(false);
 
   // Wire up CRUD for reminders, tasks, and health logs
   const onToggleTaskStatus = (taskId) => {
@@ -135,6 +149,13 @@ function MainContainer() {
           </div>
         </div>
       </nav>
+      {/* Add Pet Modal */}
+      <AddPetForm
+        open={addPetModalOpen}
+        onSave={handleAddPetSubmit}
+        onCancel={handleAddPetCancel}
+      />
+
       <div style={{ display: "flex", paddingTop: "68px", minHeight: "calc(100vh - 68px)", background: "var(--kavia-dark)" }}>
         <SidebarTabs
           pets={pets}
