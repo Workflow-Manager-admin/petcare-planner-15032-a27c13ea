@@ -6,6 +6,7 @@ import PetProfile from './components/PetProfile';
 import TaskList from './components/TaskList';
 import HealthLogPanel from './components/HealthLogPanel';
 import Reminder from './components/Reminder';
+// Only import RemindersPanel once; removing duplicate if present.
 import RemindersPanel from './components/RemindersPanel';
 import RemindersPanel from './components/RemindersPanel';
 
