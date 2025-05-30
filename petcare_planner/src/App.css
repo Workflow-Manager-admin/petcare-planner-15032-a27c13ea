@@ -102,34 +102,35 @@ body {
 }
 
 .hero {
-  padding-top: 120px;
-  padding-bottom: 64px;
+  padding-top: 116px;
+  padding-bottom: 56px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 18px;
 }
 
 .subtitle {
-  color: var(--kavia-orange);
+  color: var(--accent);
   font-weight: 500;
-  font-size: 1.1rem;
+  font-size: 1.07rem;
 }
 
 .title {
-  font-size: 3.5rem;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: 3.2rem;
+  font-weight: 700;
+  line-height: 1.19;
   margin: 0;
 }
 
 .description {
   font-size: 1.1rem;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--text-secondary);
   max-width: 600px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+  font-weight: 400;
 }
 
 .btn {
