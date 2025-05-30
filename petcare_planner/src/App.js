@@ -8,6 +8,7 @@ import HealthLogPanel from './components/HealthLogPanel';
 import Reminder from './components/Reminder';
 import RemindersPanel from './components/RemindersPanel';
 import AddPetForm from './components/AddPetForm';
+import PerPetTaskScheduler from './components/PerPetTaskScheduler';
 
 // Import Context Providers/hooks (all centralized state logic)
 import { PetProvider, usePets } from './contexts/PetContext';
@@ -174,6 +175,19 @@ function MainContainer() {
                 onDismissReminder={onDismissReminder}
                 showHealthLog={false /* handled below */}
               />
+              {/* Add recurring task scheduler section for the selected pet */}
+              <div style={{ marginTop: 24 }}>
+                {/* PerPetTaskScheduler provides recurring task CRUD per pet */}
+                {activePetId && (
+                  <React.Suspense fallback={<div>Loading scheduler...</div>}>
+                    {/*
+                      The PerPetTaskScheduler is loaded here for modularity.
+                      If it becomes large, you may use React.lazy here.
+                    */}
+                    <PerPetTaskScheduler activePetId={activePetId} />
+                  </React.Suspense>
+                )}
+              </div>
             </div>
             <div style={{ flex: 1.2, minWidth: 260, maxWidth: 430 }}>
               {/* Health log CRUD for current pet */}
