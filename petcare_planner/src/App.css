@@ -1,18 +1,58 @@
 :root {
-  --kavia-orange: #E87A41;
-  --kavia-dark: #1A1A1A;
-  --text-color: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
+  /* BRAND THEME COLORS */
+  --primary: #4CAF50;
+  --accent: #FF9800;
+  --kavia-orange: #FF9800;
+  --kavia-dark: #131618;
+  --background-dark: #131618;
+  --background-mid: #181b22;
+  --background-card: #202328;
+  --surface: #23272E;
+
+  --text-color: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.8);
+  --text-placeholder: #b7bcbe;
   --border-color: rgba(255, 255, 255, 0.1);
+
+  --success: #4CAF50;
+  --danger: #D32F2F;
+
+  /* SHADOWS */
+  --elevation-1: 0 2px 8px 0 rgba(0,0,0,0.14);
+
+  /* Focus and accessibility */
+  --focus-ring: 0 0 0 2px var(--accent);
+}
+
+[data-theme="dark"] {
+  /* Ensures dark mode is enforced */
+  --primary: #4CAF50;
+  --accent: #FF9800;
+  --kavia-orange: #FF9800;
+  --kavia-dark: #131618;
+  --background-dark: #131618;
+  --background-mid: #181b22;
+  --background-card: #202328;
+  --surface: #23272E;
+  --text-color: #FFF;
+  --text-secondary: rgba(255,255,255,0.77);
+  --text-placeholder: #b7bcbe;
+  --border-color: rgba(255,255,255,0.14);
+
+  background: var(--background-dark);
+  color: var(--text-color);
 }
 
 body {
   margin: 0;
   font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-  background-color: var(--kavia-dark);
+  background-color: var(--background-dark);
   color: var(--text-color);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  letter-spacing: 0.01em;
+  transition: background 0.2s, color 0.2s;
 }
 
 .app {
