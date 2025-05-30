@@ -11,6 +11,7 @@ import Reminder from './components/Reminder';
 import { PetProvider, usePets } from './contexts/PetContext';
 import { TaskProvider, useTasks } from './contexts/TaskContext';
 // For extensibility: HealthLog and Reminders/Notifications providers will be created below.
+import ReactContext from 'react';
 
 const theme = {
   primary: '#4CAF50',
@@ -20,12 +21,11 @@ const theme = {
 };
 
 // Create HealthLog Context
-import ReactContext from 'react';
 const HealthLogContext = ReactContext.createContext();
-export const useHealthLogs = () => React.useContext(HealthLogContext);
+export const useHealthLogs = () => ReactContext.useContext(HealthLogContext);
 // Create Notification/Reminder Context
 const ReminderContext = ReactContext.createContext();
-export const useReminders = () => React.useContext(ReminderContext);
+export const useReminders = () => ReactContext.useContext(ReminderContext);
 
 /**
  * HealthLogProvider holds CRUD + localStorage sync for per-pet health timeline events.
