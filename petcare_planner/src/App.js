@@ -30,10 +30,13 @@ function MainContainer() {
   // HEALTH EVENT CONTEXT
   const { healthEvents, addHealthEvent, updateHealthEvent, deleteHealthEvent } = useHealthLogs();
   // REMINDER CONTEXT
-  const { reminders, addReminder, updateReminder, dismissReminder, deleteReminder } = useReminders();
+  const { reminders, addReminder, updateReminder, dismissReminder, deleteReminder, snoozeReminder } = useReminders();
 
   // App-level active (selected) pet, defaults to first if available
   const [activePetId, setActivePetId] = useState(() => pets[0]?.id || "");
+
+  // Reminders panel/modal open state
+  const [remindersOpen, setRemindersOpen] = useState(false);
 
   // Whenever pets changes: if no activePetId or the pet gets deleted, fallback
   useEffect(() => {
@@ -60,6 +63,7 @@ function MainContainer() {
     });
   };
   const onDismissReminder = (reminderId) => dismissReminder(reminderId);
+
   // Handler for snoozing reminders, using the context directly (legal hook usage)
   const handleSnoozeReminder = (reminderId, mins = 10) => {
     if (typeof mins !== "number") mins = 10;
