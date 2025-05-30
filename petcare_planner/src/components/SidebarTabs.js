@@ -11,7 +11,7 @@ function SidebarTabs({ pets, activePetId, onSelect, onAdd }) {
     <aside
       style={{
         minWidth: 220,
-        background: "#181b22",
+        background: "var(--background-mid)",
         padding: "22px 10px",
         borderRight: "1px solid var(--border-color)",
         minHeight: "100vh",
