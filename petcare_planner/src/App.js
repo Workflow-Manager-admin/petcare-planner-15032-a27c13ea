@@ -1,21 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import './App.css';
 import SidebarTabs from './components/SidebarTabs';
 import Dashboard from './components/Dashboard';
-
-// Placeholder panel imports for extensibility
 import PetProfile from './components/PetProfile';
 import TaskList from './components/TaskList';
 import HealthLog from './components/HealthLog';
 import Reminder from './components/Reminder';
 
-// Mock data imports for first-step scaffolding, until real context is wired
-import { mockPets } from './mock/pets';
-import { mockTasks } from './mock/tasks';
-import { mockHealthEvents } from './mock/healthEvents';
-import { mockReminders } from './mock/reminders';
+// CONSUME CONTEXTS
+import { PetProvider, usePets } from './contexts/PetContext';
+import { TaskProvider, useTasks } from './contexts/TaskContext';
+// For extensibility: HealthLog and Reminders/Notifications providers will be created below.
 
-// THEME COLORS (applicable for future ThemeProvider/context work)
 const theme = {
   primary: '#4CAF50',
   secondary: '#FFFFFF',
@@ -23,50 +19,144 @@ const theme = {
   mode: 'dark'
 };
 
-function App() {
-  // App-level state for active (selected) pet
-  const [activePetId, setActivePetId] = useState(mockPets[0]?.id);
+// Create HealthLog Context
+import ReactContext from 'react';
+const HealthLogContext = ReactContext.createContext();
+export const useHealthLogs = () => React.useContext(HealthLogContext);
+// Create Notification/Reminder Context
+const ReminderContext = ReactContext.createContext();
+export const useReminders = () => React.useContext(ReminderContext);
 
-  // Switch selected pet for dashboard
+/**
+ * HealthLogProvider holds CRUD + localStorage sync for per-pet health timeline events.
+ */
+function HealthLogProvider({ children }) {
+  const [logs, setLogs] = useState(() => {
+    try {
+      const stored = window.localStorage.getItem("healthEvents");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  React.useEffect(() => {
+    window.localStorage.setItem("healthEvents", JSON.stringify(logs));
+  }, [logs]);
+
+  // PUBLIC_INTERFACE
+  const addHealthEvent = (event) => setLogs((old) => [...old, event]);
+  // PUBLIC_INTERFACE
+  const updateHealthEvent = (id, updated) =>
+    setLogs((old) => old.map((ev) => (ev.id === id ? { ...ev, ...updated } : ev)));
+  // PUBLIC_INTERFACE
+  const deleteHealthEvent = (id) =>
+    setLogs((old) => old.filter((ev) => ev.id !== id));
+
+  return (
+    <HealthLogContext.Provider
+      value={{
+        healthEvents: logs,
+        addHealthEvent,
+        updateHealthEvent,
+        deleteHealthEvent,
+      }}>
+      {children}
+    </HealthLogContext.Provider>
+  );
+}
+
+/**
+ * ReminderProvider manages local reminder/notification queue and sync.
+ */
+function ReminderProvider({ children }) {
+  const [reminders, setReminders] = useState(() => {
+    try {
+      const stored = window.localStorage.getItem("reminders");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  React.useEffect(() => {
+    window.localStorage.setItem("reminders", JSON.stringify(reminders));
+  }, [reminders]);
+
+  // PUBLIC_INTERFACE
+  const addReminder = (rem) => setReminders((old) => [...old, rem]);
+  // PUBLIC_INTERFACE
+  const updateReminder = (id, updated) =>
+    setReminders((old) => old.map((r) => (r.id === id ? { ...r, ...updated } : r)));
+  // PUBLIC_INTERFACE
+  const dismissReminder = (id) =>
+    setReminders((old) => old.map((r) => (r.id === id ? { ...r, dismissed: true } : r)));
+  // PUBLIC_INTERFACE
+  const deleteReminder = (id) =>
+    setReminders((old) => old.filter((r) => r.id !== id));
+
+  return (
+    <ReminderContext.Provider
+      value={{
+        reminders,
+        addReminder,
+        updateReminder,
+        dismissReminder,
+        deleteReminder,
+      }}>
+      {children}
+    </ReminderContext.Provider>
+  );
+}
+
+// MAIN APP LAYER
+function MainContainer() {
+  // PET/PROFILE CONTEXT
+  const { pets, addPet, updatePet, deletePet } = usePets();
+  // TASK CONTEXT
+  const { tasks, addTask, updateTask, deleteTask } = useTasks();
+  // HEALTH EVENT CONTEXT
+  const { healthEvents, addHealthEvent, updateHealthEvent, deleteHealthEvent } = useHealthLogs();
+  // REMINDER CONTEXT
+  const { reminders, addReminder, updateReminder, dismissReminder, deleteReminder } = useReminders();
+
+  // App-level active (selected) pet, defaults to first if available
+  const [activePetId, setActivePetId] = React.useState(() => pets[0]?.id || "");
+
+  // Whenever pets changes: if no activePetId or the pet gets deleted, fallback
+  React.useEffect(() => {
+    if (!pets.find((p) => p.id === activePetId)) {
+      setActivePetId(pets.length > 0 ? pets[0].id : "");
+    }
+  }, [pets, activePetId]);
+
+  // Selection handler for pet tab
   const handleSelectPet = (petId) => setActivePetId(petId);
 
-  // Placeholders for CRUD actions (to be replaced with context/actions)
+  // Handler for "Add Pet" – actual modal/form is to be implemented elsewhere
   const handleAddPet = () => {
-    // Placeholder: would open add-pet modal in real app
-    alert('Open Add Pet form (to be implemented)');
-  };
-  // Toggle task status for demo
-  const [tasks, setTasks] = useState(mockTasks);
-  const onToggleStatus = (taskId) => {
-    setTasks(tasks =>
-      tasks.map(t =>
-        t.id === taskId
-          ? {
-              ...t,
-              status: t.status === "done"
-                ? "pending"
-                : "done"
-            }
-          : t
-      )
-    );
-  };
-  // Reminders dismiss (demo)
-  const [reminders, setReminders] = useState(mockReminders);
-  const onDismissReminder = (reminderId) => {
-    setReminders(reminders =>
-      reminders.map(r =>
-        r.id === reminderId ? { ...r, dismissed: true } : r
-      )
-    );
+    // Placeholder: in production, show a modal, etc.
+    alert("Open Add Pet form (to be implemented)");
   };
 
-  // Filter pet-related tasks/events
-  const filteredTasks = tasks.filter(
-    (t) => t.petId === activePetId
+  // Wire up CRUD for reminders, tasks, and health logs
+  const onToggleTaskStatus = (taskId) => {
+    const t = tasks.find((t) => t.id === taskId);
+    if (!t) return;
+    updateTask(taskId, {
+      status: t.status === "done" ? "pending" : "done",
+    });
+  };
+  const onDismissReminder = (reminderId) => dismissReminder(reminderId);
+
+  // Filter view for active pet
+  const filteredTasks = useMemo(
+    () => tasks.filter((t) => t.petId === activePetId),
+    [tasks, activePetId]
   );
-  const filteredEvents = mockHealthEvents.filter(
-    (e) => e.petId === activePetId
+  const filteredEvents = useMemo(
+    () => healthEvents.filter((e) => e.petId === activePetId),
+    [healthEvents, activePetId]
   );
 
   return (
@@ -88,7 +178,7 @@ function App() {
       </nav>
       <div style={{ display: "flex", paddingTop: "68px", minHeight: "calc(100vh - 68px)", background: "var(--kavia-dark)" }}>
         <SidebarTabs
-          pets={mockPets}
+          pets={pets}
           activePetId={activePetId}
           onSelect={handleSelectPet}
           onAdd={handleAddPet}
@@ -99,12 +189,12 @@ function App() {
             tasks={filteredTasks}
             events={filteredEvents}
             reminders={reminders}
-            onToggleStatus={onToggleStatus}
+            onToggleStatus={onToggleTaskStatus}
             onDismissReminder={onDismissReminder}
           />
           {/* Slots for future extensibility/features */}
           <section style={{ display: 'none' }}>
-            <PetProfile pet={mockPets.find(p => p.id === activePetId)} />
+            <PetProfile pet={pets.find(p => p.id === activePetId)} />
             <TaskList tasks={filteredTasks} />
             <HealthLog events={filteredEvents} />
             <Reminder reminder={reminders[0]} />
@@ -112,6 +202,22 @@ function App() {
         </main>
       </div>
     </div>
+  );
+}
+
+function App() {
+  // Compose all context providers for local storage state
+  // (ThemeProvider can be added as a wrapper here if/when needed)
+  return (
+    <PetProvider>
+      <TaskProvider>
+        <HealthLogProvider>
+          <ReminderProvider>
+            <MainContainer />
+          </ReminderProvider>
+        </HealthLogProvider>
+      </TaskProvider>
+    </PetProvider>
   );
 }
 
