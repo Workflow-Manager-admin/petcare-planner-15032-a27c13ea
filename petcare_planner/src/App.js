@@ -96,16 +96,23 @@ function MainContainer() {
         />
 
         <main style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh", background: "#16191f" }}>
-          <Dashboard
-            reminders={reminders}
-            onDismissReminder={onDismissReminder}
-            showHealthLog={true}
-          />
+          <div style={{ display: "flex", flexDirection: "row", width: "100%", gap: "32px", alignItems: "flex-start", padding: "32px 34px 0 14px" }}>
+            <div style={{ flex: 2, minWidth: 295, maxWidth: 600 }}>
+              <Dashboard
+                reminders={reminders}
+                onDismissReminder={onDismissReminder}
+                showHealthLog={false /* handled below */}
+              />
+            </div>
+            <div style={{ flex: 1.2, minWidth: 260, maxWidth: 430 }}>
+              {/* Health log CRUD for current pet */}
+              <HealthLogPanel petId={activePetId} />
+            </div>
+          </div>
           {/* Slots for future extensibility/features */}
           <section style={{ display: 'none' }}>
             <PetProfile pet={pets.find(p => p.id === activePetId)} />
             <TaskList tasks={filteredTasks} />
-            <HealthLog events={filteredEvents} />
             <Reminder reminder={reminders[0]} />
           </section>
         </main>
