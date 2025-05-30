@@ -161,7 +161,10 @@ function MainContainer() {
           </div>
           {/* Slots for future extensibility/features */}
           <section style={{ display: 'none' }}>
-            <PetProfile pet={pets.find(p => p.id === activePetId)} />
+            {/* Only render PetProfile if the active pet exists */}
+            {pets.find(p => p.id === activePetId) && (
+              <PetProfile pet={pets.find(p => p.id === activePetId)} />
+            )}
             <TaskList tasks={filteredTasks} />
             <Reminder reminder={reminders[0]} />
           </section>
