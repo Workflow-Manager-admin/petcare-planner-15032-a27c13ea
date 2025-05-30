@@ -4,7 +4,7 @@ import SidebarTabs from './components/SidebarTabs';
 import Dashboard from './components/Dashboard';
 import PetProfile from './components/PetProfile';
 import TaskList from './components/TaskList';
-import HealthLog from './components/HealthLog';
+import HealthLogPanel from './components/HealthLogPanel';
 import Reminder from './components/Reminder';
 
 // Import Context Providers/hooks (all centralized state logic)
